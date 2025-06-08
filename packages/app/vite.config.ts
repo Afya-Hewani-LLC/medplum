@@ -19,6 +19,9 @@ try {
 
 process.env.MEDPLUM_VERSION = packageJson.version + '-' + gitHash;
 
+// Check if we're in a Docker environment or if the monorepo structure exists
+const isMonorepo = existsSync(path.resolve(__dirname, '../core/src'));
+
 export default defineConfig({
   envPrefix: ['MEDPLUM_', 'GOOGLE_', 'RECAPTCHA_'],
   plugins: [react()],
@@ -35,10 +38,12 @@ export default defineConfig({
     sourcemap: true,
   },
   resolve: {
-    alias: {
-      '@medplum/core': path.resolve(__dirname, '../core/src'),
-      '@medplum/react': path.resolve(__dirname, '../react/src'),
-      '@medplum/react-hooks': path.resolve(__dirname, '../react-hooks/src'),
-    },
+    alias: isMonorepo
+      ? {
+          '@medplum/core': path.resolve(__dirname, '../core/src'),
+          '@medplum/react': path.resolve(__dirname, '../react/src'),
+          '@medplum/react-hooks': path.resolve(__dirname, '../react-hooks/src'),
+        }
+      : {},
   },
 });

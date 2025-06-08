@@ -5,7 +5,28 @@ import { OperationOutcome } from '@medplum/fhirtypes';
 import { Document, Form, useMedplum } from '@medplum/react';
 import { IconCircleCheck } from '@tabler/icons-react';
 import { JSX, useCallback, useEffect, useState } from 'react';
-import { MfaForm, MfaFormFields } from '../../react/src/auth/MfaForm';
+
+// Direct import since MfaForm is not exported from main package
+type MfaFormFields = 'token';
+
+interface MfaFormProps {
+  readonly onSubmit: (formData: Record<MfaFormFields, string>) => Promise<void>;
+}
+
+function MfaForm(props: MfaFormProps): JSX.Element {
+  return (
+    <Form
+      onSubmit={(formData: Record<MfaFormFields, string>) => {
+        props.onSubmit(formData).catch(console.error);
+      }}
+    >
+      <TextInput name="token" label="Code" required />
+      <Group justify="flex-end" mt="xl">
+        <Button type="submit">Submit</Button>
+      </Group>
+    </Form>
+  );
+}
 
 export function MfaPage(): JSX.Element | null {
   const medplum = useMedplum();
@@ -56,7 +77,7 @@ export function MfaPage(): JSX.Element | null {
       <Document>
         <Modal title="Disable MFA" opened={disabling} onClose={() => setDisabling(false)}>
           <MfaForm
-            onSubmit={async (formData) => {
+            onSubmit={async (formData: Record<MfaFormFields, string>) => {
               // This will throw if MFA failed to disable
               await disableMfa(formData);
               setDisabling(false);

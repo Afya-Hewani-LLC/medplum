@@ -17,4 +17,4 @@ ENV MEDPLUM_REGISTER_ENABLED="true"
 ENV MEDPLUM_AWS_TEXTRACT_ENABLED="true"
 
 EXPOSE 3000
-CMD npm run build && npm run start 
+CMD npm run dev 
