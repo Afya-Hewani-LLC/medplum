@@ -20,14 +20,20 @@ WORKDIR /app
 # Add the application files
 ADD . .
 
-# Install dependencies, create non-root user, and set permissions in one layer
-RUN npm ci --maxsockets 1 && \
-  groupadd -r afyahewani && \
+# Install dependencies with cache cleanup to save space
+RUN npm ci --maxsockets 1 --no-optional && \
+  npm cache clean --force && \
+  rm -rf /tmp/* /var/tmp/* /root/.npm/_cacache
+
+# Create non-root user and set permissions
+RUN groupadd -r afyahewani && \
   useradd -r -g afyahewani afyahewani && \
   mkdir -p /app/binary && \
   chown -R afyahewani:afyahewani /app
 
-RUN npm install -g ts-node-dev
+# Install ts-node-dev globally
+RUN npm install -g ts-node-dev && \
+  npm cache clean --force
 
 EXPOSE 8103
 
