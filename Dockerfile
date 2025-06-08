@@ -15,20 +15,22 @@ FROM node:20-slim
 
 ENV NODE_ENV=production
 
-WORKDIR /usr/src/medplum
+WORKDIR /app
 
 # Add the application files
-ADD ./medplum-server.tar.gz ./
+ADD . .
 
 # Install dependencies, create non-root user, and set permissions in one layer
 RUN npm ci --maxsockets 1 && \
-  groupadd -r medplum && \
-  useradd -r -g medplum medplum && \
-  chown -R medplum:medplum /usr/src/medplum
+  groupadd -r afyahewani && \
+  useradd -r -g afyahewani afyahewani && \
+  chown -R afyahewani:afyahewani /app
 
-EXPOSE 5000 8103
+RUN npm install -g ts-node-dev
+
+EXPOSE 8103
 
 # Switch to the non-root user
-USER medplum
+USER afyahewani
 
-ENTRYPOINT [ "node", "--require", "./packages/server/dist/otel/instrumentation.js", "packages/server/dist/index.js" ]
+ENTRYPOINT [ "ts-node-dev", "--poll", "--respawn", "--transpile-only", "--require", "./packages/server/src/otel/instrumentation.ts", "./packages/server/src/index.ts" ]

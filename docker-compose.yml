@@ -1,12 +1,7 @@
-# This is the docker-compose file to run Medplum's required background services
-# It can be used to quickly run 2 services:
-#   1) The Postgres database
-#   2) The Redis cache
-# You can start all services by running "docker-compose up"
-version: '3.7'
 services:
   postgres:
     image: postgres:16
+    container_name: postgres
     restart: always
     environment:
       - POSTGRES_USER=medplum
@@ -17,9 +12,61 @@ services:
     command: postgres -c config_file=/usr/local/etc/postgres/postgres.conf
     ports:
       - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U medplum']
+      interval: 10s
+      timeout: 5s
+      retries: 5
   redis:
     image: redis:7
+    container_name: redis
     restart: always
     command: redis-server --requirepass medplum
     ports:
       - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', 'medplum', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  emr-server:
+    build: .
+    restart: always
+    container_name: emr-server
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - '8103:8103'
+    healthcheck:
+      test:
+        # We use Node's fetch for healthcheck because this image doesn't have a curl or wget installed
+        [
+          'CMD',
+          'node',
+          '-e',
+          'fetch("http://localhost:8103/healthcheck").then(r => r.json()).then(console.log).catch(() => { process.exit(1); })',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - .:/app
+  # medplum-app:
+  #   build:
+  #     context: ./packages/app
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   container_name: medplum-app
+  #   depends_on:
+  #     emr-server:
+  #       condition: service_healthy
+  #   ports:
+  #     - '3000:3000'
+  #   healthcheck:
+  #     test: ['CMD', 'curl', '-f', 'http://localhost:3000']
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
