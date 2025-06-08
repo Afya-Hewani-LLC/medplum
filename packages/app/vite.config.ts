@@ -28,6 +28,7 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3010,
+    allowedHosts: ['localhost', '127.0.0.1', 'emr-dev.cms.afyahewani.io'],
   },
   preview: {
     host: '0.0.0.0',
