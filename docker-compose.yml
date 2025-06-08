@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16
-    container_name: postgres
+    container_name: postgres-emr
     restart: always
     environment:
       - POSTGRES_USER=medplum
@@ -17,9 +17,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  redis:
+  redis-emr:
     image: redis:7
-    container_name: redis
+    container_name: redis-emr
     restart: always
     command: redis-server --requirepass medplum
     ports:
@@ -36,7 +36,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      redis:
+      redis-emr:
         condition: service_healthy
     ports:
       - '8103:8103'
@@ -54,19 +54,19 @@ services:
       retries: 5
     volumes:
       - .:/app
-  # medplum-app:
-  #   build:
-  #     context: ./packages/app
-  #     dockerfile: Dockerfile
-  #   restart: always
-  #   container_name: medplum-app
-  #   depends_on:
-  #     emr-server:
-  #       condition: service_healthy
-  #   ports:
-  #     - '3000:3000'
-  #   healthcheck:
-  #     test: ['CMD', 'curl', '-f', 'http://localhost:3000']
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
+  medplum-app:
+    build:
+      context: ./packages/app
+      dockerfile: Dockerfile
+    restart: always
+    container_name: medplum-app
+    depends_on:
+      emr-server:
+        condition: service_healthy
+    ports:
+      - '3010:3000'
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3010']
+      interval: 10s
+      timeout: 5s
+      retries: 5
