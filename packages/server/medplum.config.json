@@ -30,7 +30,7 @@
   },
   "redis": {
     "host": "redis-emr",
-    "port": 6380,
+    "port": 6379,
     "password": "medplum"
   },
   "bullmq": {
