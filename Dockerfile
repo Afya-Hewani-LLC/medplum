@@ -24,6 +24,7 @@ ADD . .
 RUN npm ci --maxsockets 1 && \
   groupadd -r afyahewani && \
   useradd -r -g afyahewani afyahewani && \
+  mkdir -p /app/binary && \
   chown -R afyahewani:afyahewani /app
 
 RUN npm install -g ts-node-dev
