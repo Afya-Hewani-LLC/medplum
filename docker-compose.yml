@@ -58,6 +58,8 @@ services:
     build:
       context: ./packages/app
       dockerfile: Dockerfile
+      args:
+        - BUILD_MODE=production
     restart: always
     container_name: medplum-app
     depends_on:
