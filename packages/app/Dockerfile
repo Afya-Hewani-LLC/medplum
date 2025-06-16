@@ -9,12 +9,6 @@ RUN npm install && npm cache clean --force
 
 COPY . .
 
-ENV MEDPLUM_BASE_URL="https://emr.afyahewani.io/"
-ENV MEDPLUM_CLIENT_ID=""
-ENV GOOGLE_CLIENT_ID=""
-ENV RECAPTCHA_SITE_KEY="6LfClVkrAAAAAEIvnMtKwBJlghDtQsJwUkG1dKlu"
-ENV MEDPLUM_REGISTER_ENABLED="true"
-ENV MEDPLUM_AWS_TEXTRACT_ENABLED="true"
-
 EXPOSE 3010
-CMD npm run dev 
+
+CMD ["npm", "run", "start"]
