@@ -57,14 +57,14 @@ services:
   medplum-app:
     build:
       context: ./packages/app
-      dockerfile: .Dockerfile
+      dockerfile: Dockerfile
     restart: always
     container_name: medplum-app
     depends_on:
       emr-server:
         condition: service_healthy
     ports:
-      - '3010:3000'
+      - '3010:3010'
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3010']
       interval: 10s
